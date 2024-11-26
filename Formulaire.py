@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import json
 from datetime import datetime
+from sqlalchemy import text 
 
 # Configuration de la page
 st.set_page_config(
@@ -140,7 +141,20 @@ def main():
                 "dental_status": dental_data,
                 "comments": comments
             }
+            conn = st.connection('mysql', type='sql')
+            with conn.session as s:
+                s.execute(
+                text('INSERT INTO patient(name,identifier,comment) VALUES (:name, :identifier, :comment);'),
+                params=dict( name = patient_name, identifier = patient_id, comment = comments))
+                s.commit()
+           
+            ###query = ' INSERT INTO patient (name, identifier, comment) VALUES("'+patient_name+'","'+patient_id+'","'+comments+'")'
+            
 
+           #### conn.query(query,ttl=600)
+            
+            
+ 
             # Affichage du succès
             st.success("✅ Évaluation enregistrée avec succès!", icon="✅")
             
